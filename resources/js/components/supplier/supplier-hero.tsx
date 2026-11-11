@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, ClipboardCheck, SearchCheck, ShieldCheck, BarChart3, Building, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ClipboardCheck, SearchCheck, ShieldCheck, BarChart3, Building, Users, Building2, FileCheck, Landmark, Send, Tags } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useRef, useState } from 'react';
@@ -90,14 +90,6 @@ const journeySteps = [
 ];
 
 export default function SupplierHero({ onOpenFaq }: SupplierHeroProps) {
-    const [activeStep, setActiveStep] = useState(1);
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-    const completedCount = journeySteps.filter((s) => s.status === 'completed').length;
-    const totalSteps = journeySteps.length;
-    const progressPercent = Math.round((completedCount / totalSteps) * 100);
-
     return (
         <section className="relative overflow-hidden bg-[#F5F9F9]">
             {/* Decorative background elements */}
@@ -197,89 +189,70 @@ export default function SupplierHero({ onOpenFaq }: SupplierHeroProps) {
 
                 {/* Full-width Registration Journey Section */}
                 <div className="mt-16 lg:mt-20">
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-2">
-                                <span className="inline-flex items-center gap-2 rounded-full bg-[#00ADC5]/10 px-4 py-1.5 text-xs font-semibold text-[#00ADC5]">
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    Registration Journey
-                                </span>
-                                <h2 className="text-3xl font-bold tracking-tight text-[#172B3A] sm:text-4xl">
-                                    A Simple Journey to Becoming an EEC Supplier
-                                </h2>
-                                <p className="text-lg text-[#647783]">
-                                    Our structured registration process makes it easy to submit your company information and become part of the EEC supplier network.
-                                </p>
-                            </div>
+                    <div className="space-y-10 text-center">
+                        <div className="space-y-3 mx-auto max-w-3xl">
+                            <span className="inline-flex items-center gap-2 rounded-full bg-[#00ADC5]/10 px-4 py-1.5 text-xs font-semibold text-[#00ADC5]">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Registration Journey
+                            </span>
+                            <h2 className="text-3xl font-bold tracking-tight text-[#172B3A] sm:text-4xl">
+                                A Simple Journey to Becoming an EEC Supplier
+                            </h2>
+                            <p className="text-lg text-[#647783]">
+                                Our structured registration process makes it easy to submit your company information and become part of the EEC supplier network.
+                            </p>
                         </div>
 
-                        {/* Stepper */}
-                        <div className="relative">
-                            <div className="absolute top-[20px] left-0 right-0 h-[2px] bg-[#e2e8f0] -z-10" />
-                            <div className="flex items-center gap-4 md:gap-6 lg:gap-8 overflow-x-auto pb-4 scrollbar-hide">
-                                {journeySteps.map((step, index) => {
-                                    const isCompleted = step.status === 'completed';
-                                    const isCurrent = step.status === 'current';
-                                    const showConnector = index < journeySteps.length - 1;
+                        {/* Modern Step Cards */}
+                        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                            <div className="flex gap-6">
+                                {journeySteps.map((step) => {
+                                    const stepColors: Record<number, { bg: string; icon: string; border: string }> = {
+                                        1: { bg: 'bg-indigo-50', icon: 'text-indigo-500', border: 'border-indigo-200' },
+                                        2: { bg: 'bg-blue-50', icon: 'text-blue-500', border: 'border-blue-200' },
+                                        3: { bg: 'bg-emerald-50', icon: 'text-emerald-500', border: 'border-emerald-200' },
+                                        4: { bg: 'bg-amber-50', icon: 'text-amber-500', border: 'border-amber-200' },
+                                        5: { bg: 'bg-rose-50', icon: 'text-rose-500', border: 'border-rose-200' },
+                                        6: { bg: 'bg-violet-50', icon: 'text-violet-500', border: 'border-violet-200' },
+                                        7: { bg: 'bg-cyan-50', icon: 'text-cyan-500', border: 'border-cyan-200' },
+                                    };
+
+                                    const color = stepColors[step.number] ?? stepColors[1];
+
+                                    const iconMap: Record<number, typeof Landmark> = {
+                                        1: Landmark,
+                                        2: Building2,
+                                        3: Tags,
+                                        4: FileCheck,
+                                        5: Send,
+                                        6: Tags,
+                                        7: CheckCircle2,
+                                    };
+
+                                    const StepIcon = iconMap[step.number] ?? Landmark;
 
                                     return (
-                                        <div
-                                            key={step.number}
-                                            className="relative z-10 cursor-pointer transition-transform duration-300 hover:-translate-y-1 flex flex-col items-center gap-2 min-w-[140px]"
-                                            onMouseEnter={() => {
-                                                setActiveStep(step.number);
-                                                setShowTooltip(true);
-                                            }}
-                                            onMouseLeave={() => setShowTooltip(false)}
-                                            onMouseMove={(e) => {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 40 });
-                                            }}
-                                        >
-                                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                                                isCompleted ? 'border-[#00515F] bg-[#00515F] text-white shadow-[0_0_12px_rgba(0,81,95,0.30)]' : isCurrent ? 'border-[#00ADC5] bg-[#00ADC5] text-white shadow-[0_0_12px_rgba(0,173,197,0.40)]' : 'border-[#e2e8f0] bg-[#F8FAFC] text-[#647783]'
-                                            }`}>
-                                                {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : step.number}
+                                        <div key={step.number} className="flex-1 flex flex-col items-center gap-4">
+                                            {/* Step Card */}
+                                            <div className={`relative z-10 flex flex-col items-center gap-3 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${color.border} bg-white shadow-sm hover:shadow-md hover:-translate-y-1`}>
+                                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${color.bg} transition-all duration-300`}>
+                                                    <StepIcon className={`h-5 w-5 ${color.icon}`} />
+                                                </div>
+
+                                                <div className="text-center">
+                                                    <h3 className="mt-1 text-sm font-semibold text-[#172B3A] leading-tight">
+                                                        {step.title}
+                                                    </h3>
+                                                    <p className="mt-1.5 text-xs leading-relaxed text-[#647783]">
+                                                        {step.description}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <span className={`text-sm font-semibold ${isCompleted || isCurrent ? 'text-[#172B3A]' : 'text-[#94A3B8]'}`}>
-                                                {step.title}
-                                            </span>
-                                            {showConnector && (
-                                                <div className="absolute top-[20px] right-[-20px] -translate-y-1/2 h-[2px] w-12 bg-[#e2e8f0]" />
-                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
-
-                            {/* Progress Bar */}
-                            <div className="mt-8">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-semibold text-[#647783]">Registration Progress</span>
-                                    <span className="text-sm font-bold text-[#172B3A]">{progressPercent}%</span>
-                                </div>
-                                <div className="h-3 w-full rounded-full bg-[#e2e8f0] overflow-hidden">
-                                    <div className="h-full bg-[#00515F] transition-all duration-1000 ease-out" style={{ width: `${progressPercent}%` }} />
-                                </div>
-                                <p className="mt-2 text-[11px] text-[#647783]">
-                                    {completedCount} of {totalSteps} stages complete • Est. <span className="font-semibold text-[#172B3A]">10–15 min</span>
-                                </p>
-                            </div>
                         </div>
-
-                        {/* Step tooltip */}
-                        {showTooltip && (
-                            <div
-                                className="absolute -z-10 pointer-events-none"
-                                style={{ left: tooltipPosition.x, top: tooltipPosition.y }}
-                            >
-                                <div className="relative -translate-x-1/2 -translate-y-full z-10 rounded-lg border border-[#e2e8f0] bg-white p-3 shadow-lg">
-                                    <p className="text-sm font-medium text-[#172B3A]">{journeySteps[activeStep - 1]?.title}</p>
-                                    <p className="mt-1 text-xs text-[#647783]">{journeySteps[activeStep]?.description || ''}</p>
-                                    <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-5 border-r-5 border-t-5 border-white border-transparent" />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
