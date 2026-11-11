@@ -231,7 +231,7 @@ export default function AdminTaxExpiry({ suppliers, summary, filters, today }: A
                 </p>
             </div>
 
-            <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+            <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {summaryCards.map((card) => (
                     <Card key={card.key} className="rounded-2xl border-gray-200/80 shadow-sm">
                         <CardContent className="p-4">
@@ -272,7 +272,7 @@ export default function AdminTaxExpiry({ suppliers, summary, filters, today }: A
                             })}
                         </div>
 
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <form className="flex min-w-0 gap-2" onSubmit={handleSearchSubmit}>
                                 <div className="relative min-w-0 flex-1 sm:w-72 sm:flex-none">
                                     <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />

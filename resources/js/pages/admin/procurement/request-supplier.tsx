@@ -799,7 +799,7 @@ export default function RequestSupplier({ requests, title, success }: RequestSup
                 </Alert>
             )}
 
-            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {[
                     { label: 'Total requests', value: stats.total, icon: ClipboardList, tone: 'bg-slate-100 text-slate-700' },
                     { label: 'Submitted', value: stats.submitted, icon: CalendarDays, tone: 'bg-sky-50 text-sky-700' },
@@ -967,8 +967,8 @@ export default function RequestSupplier({ requests, title, success }: RequestSup
                         </table>
 
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between px-4 py-4 border-t border-gray-100">
-                                <div className="text-sm text-gray-500">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 px-4 py-4 border-t border-gray-100">
+                                <div className="text-sm text-gray-500 text-center sm:text-left">
                                     Showing page {currentPage} of {totalPages}
                                 </div>
                                 <div className="flex items-center gap-2">

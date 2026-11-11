@@ -1,7 +1,18 @@
 import { Card, CardContent } from '@/components/ui/card';
 import AdminLayout from '@/layouts/admin/admin-layout';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, ArrowUpRight, CheckCircle2, ClipboardList, Clock3, FilePlus2, Layers3, Plus, SearchCheck, XCircle } from 'lucide-react';
+import {
+    ArrowRight,
+    ArrowUpRight,
+    CheckCircle2,
+    ClipboardList,
+    Clock3,
+    FilePlus2,
+    Layers3,
+    Plus,
+    SearchCheck,
+    XCircle,
+} from 'lucide-react';
 
 interface ProcurementDashboardProps {
     stats: {
@@ -47,10 +58,10 @@ const requestNumber = (id: number) => `PR-${String(id).padStart(6, '0')}`;
 
 export default function ProcurementDashboard({ stats, recent, userName }: ProcurementDashboardProps) {
     const cards = [
-        { label: 'Total requests', value: stats.total, icon: ClipboardList, tone: 'bg-slate-100 text-slate-700', caption: 'All your requests' },
-        { label: 'Awaiting review', value: stats.submitted, icon: Clock3, tone: 'bg-sky-50 text-sky-700', caption: 'Submitted to procurement' },
-        { label: 'In review', value: stats.under_review, icon: SearchCheck, tone: 'bg-amber-50 text-amber-700', caption: 'Currently being assessed' },
-        { label: 'Approved', value: stats.approved, icon: CheckCircle2, tone: 'bg-emerald-50 text-emerald-700', caption: 'Ready for next steps' },
+        { label: 'Total requests', value: stats.total, icon: ClipboardList, tone: 'bg-indigo-50 border-indigo-200', iconColor: 'text-indigo-600', caption: 'All your requests' },
+        { label: 'Awaiting review', value: stats.submitted, icon: Clock3, tone: 'bg-sky-50 border-sky-200', iconColor: 'text-sky-500', caption: 'Submitted to procurement' },
+        { label: 'In review', value: stats.under_review, icon: SearchCheck, tone: 'bg-amber-50 border-amber-200', iconColor: 'text-amber-500', caption: 'Currently being assessed' },
+        { label: 'Approved', value: stats.approved, icon: CheckCircle2, tone: 'bg-emerald-50 border-emerald-200', iconColor: 'text-emerald-500', caption: 'Ready for next steps' },
     ];
 
     const statusBreakdown = [
@@ -62,16 +73,18 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
         { key: 'cancelled', value: stats.cancelled },
     ];
 
+    const latestRequests = recent.slice(0, 10);
+
     return (
         <AdminLayout>
             <Head title="Procurement Dashboard" />
 
-            <div className="mx-auto w-full max-w-[1500px] space-y-7 pb-8">
+            <div className="space-y-7 pb-8">
                 <section className="relative overflow-hidden rounded-3xl bg-[#00515F] text-white shadow-sm">
                     <div className="pointer-events-none absolute -top-24 right-[-4rem] h-72 w-72 rounded-full border border-white/10" />
                     <div className="pointer-events-none absolute -top-12 right-8 h-56 w-56 rounded-full border border-white/10" />
                     <div className="pointer-events-none absolute right-20 bottom-[-8rem] h-64 w-64 rounded-full bg-[#00515F]/15 blur-3xl" />
-                    <div className="relative flex flex-col gap-6 px-6 py-8 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10 lg:py-10">
+                    <div className="relative flex flex-col gap-6 px-6 py-8 md:flex-row md:items-center md:justify-between md:px-10 md:py-10">
                         <div className="max-w-2xl">
                             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80">
                                 <span className="h-1.5 w-1.5 rounded-full bg-[#7ee4ea]" />
@@ -116,17 +129,19 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                     </div>
                 </section>
 
-                <section aria-label="Request summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <section aria-label="Request summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {cards.map((card) => (
-                        <Card key={card.label} className="rounded-2xl border-gray-200/80 shadow-sm transition-shadow hover:shadow-md">
+                        <Card key={card.label} className="rounded-2xl border-border/60 bg-background shadow-sm transition-all hover:border-[#00515F]/40 hover:shadow-md hover:-translate-y-1">
                             <CardContent className="flex items-start justify-between p-5 sm:p-6">
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-500">{card.label}</p>
-                                    <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">{card.value}</p>
-                                    <p className="mt-1.5 text-xs text-gray-500">{card.caption}</p>
+                                    <p className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">{card.label}</p>
+                                    <p className="mt-2 flex items-baseline gap-1">
+                                        <span className="text-2xl font-bold text-foreground">{card.value}</span>
+                                    </p>
+                                    <p className="mt-1.5 text-xs text-muted-foreground">{card.caption}</p>
                                 </div>
-                                <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${card.tone}`}>
-                                    <card.icon className="h-5 w-5" />
+                                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${card.tone} shadow-sm`}>
+                                    <card.icon className={`h-5 w-5 shrink-0 ${card.iconColor}`} />
                                 </span>
                             </CardContent>
                         </Card>
@@ -134,11 +149,11 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                 </section>
 
                 <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm">
+                        <div className="flex flex-col gap-3 border-b border-border px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                             <div>
-                                <h2 className="text-base font-bold text-gray-900">Recent requests</h2>
-                                <p className="mt-1 text-sm text-gray-500">A quick look at your latest procurement activity.</p>
+                                <h2 className="text-base font-bold text-foreground">Recent requests</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">A quick look at your latest procurement activity.</p>
                             </div>
                             <Link
                                 href="/proc/request-supplier"
@@ -153,8 +168,8 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                                 <span className="bg-teal/10 flex h-14 w-14 items-center justify-center rounded-2xl text-[#00515F]">
                                     <FilePlus2 className="h-7 w-7" />
                                 </span>
-                                <h3 className="mt-4 text-base font-bold text-gray-900">Start with your first request</h3>
-                                <p className="mt-1 max-w-sm text-sm leading-6 text-gray-500">
+                                <h3 className="mt-4 text-base font-bold text-foreground">Start with your first request</h3>
+                                <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
                                     Describe your supplier needs and requirements to begin the procurement review process.
                                 </p>
                                 <Link
@@ -166,53 +181,67 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                                 </Link>
                             </div>
                         ) : (
-                            <div className="divide-y divide-gray-100">
-                                {recent.map((request) => {
-                                    const status = statusStyles[request.status] ?? statusStyles.draft;
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gradient-to-r from-[#00515F] via-[#00353D] to-black text-white">
+                                        <tr>
+                                            <th className="h-10 px-4 text-left text-xs font-semibold tracking-wider uppercase text-white">Request</th>
+                                            <th className="h-10 px-4 text-left text-xs font-semibold tracking-wider uppercase text-white">Category</th>
+                                            <th className="h-10 px-4 text-left text-xs font-semibold tracking-wider uppercase text-white">Status</th>
+                                            <th className="h-10 px-4 text-right text-xs font-semibold tracking-wider uppercase text-white">Submitted</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border">
+                                        {latestRequests.map((request) => {
+                                            const status = statusStyles[request.status] ?? statusStyles.draft;
 
-                                    return (
-                                        <Link
-                                            key={request.id}
-                                            href={`/proc/requests/${request.id}`}
-                                            className="group flex flex-col gap-4 px-5 py-4 transition-colors hover:bg-slate-50/80 sm:flex-row sm:items-center sm:justify-between sm:px-6"
-                                        >
-                                            <div className="flex min-w-0 items-start gap-3">
-                                                <span className="bg-teal/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[#00515F]">
-                                                    <ClipboardList className="h-4 w-4" />
-                                                </span>
-                                                <span className="min-w-0">
-                                                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                        <span className="text-sm font-bold text-gray-900">{requestNumber(request.id)}</span>
-                                                        <span
-                                                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${status.badge}`}
-                                                        >
-                                                            <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                                                            {status.label}
+                                            return (
+                                                <tr key={request.id} className="group hover:bg-accent transition-colors">
+                                                    <td className="px-4 py-3">
+                                                        <span className="font-medium text-foreground truncate block">{requestNumber(request.id)}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-sm text-muted-foreground truncate block">
+                                                            {request.primary_business_category}
+                                                            {request.subcategory ? ` · ${request.subcategory}` : ''}
                                                         </span>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span
+                                                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold border ${status.badge}`}
+                                                        key={status.label}
+                                                        data-status={request.status}
+                                                    >
+                                                        <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                                                        {status.label}
                                                     </span>
-                                                    <span className="mt-1 block truncate text-sm font-medium text-gray-700">
-                                                        {request.primary_business_category}
-                                                        {request.subcategory ? ` · ${request.subcategory}` : ''}
-                                                    </span>
-                                                    <span className="mt-1 block text-xs text-gray-500">
-                                                        {request.procurement_type === 'supply' ? 'Supply' : 'Service'} ·{' '}
-                                                        {request.number_of_suppliers_required} suppliers · {formatDate(request.submitted_at)}
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <ArrowUpRight className="hidden h-4 w-4 shrink-0 text-gray-400 transition group-hover:text-[#00515F] sm:block" />
-                                        </Link>
-                                    );
-                                })}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right">
+                                                        <span className="text-xs text-muted-foreground whitespace-nowrap block">
+                                                            {formatDate(request.submitted_at)}
+                                                        </span>
+                                                        <Link
+                                                            href={`/proc/requests/${request.id}`}
+                                                            className="mt-1.5 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#00515F] hover:text-[#00353D] transition"
+                                                        >
+                                                            View
+                                                            <ArrowUpRight className="h-3 w-3" />
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </Card>
 
                     <div className="space-y-6">
-                        <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                            <div className="border-b border-gray-100 px-5 py-5">
-                                <h2 className="text-base font-bold text-gray-900">Request pipeline</h2>
-                                <p className="mt-1 text-sm text-gray-500">Status of your procurement requests</p>
+                        <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm">
+                            <div className="border-b border-border px-5 py-5">
+                                <h2 className="text-base font-bold text-foreground">Request pipeline</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">Status of your procurement requests</p>
                             </div>
                             <CardContent className="space-y-4 p-5">
                                 {statusBreakdown.map(({ key, value }) => {
@@ -222,13 +251,13 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                                     return (
                                         <div key={key}>
                                             <div className="mb-2 flex items-center justify-between gap-3">
-                                                <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                                                     <span className={`h-2 w-2 rounded-full ${status.dot}`} />
                                                     {status.label}
                                                 </span>
-                                                <span className="text-sm font-bold text-gray-900 tabular-nums">{value}</span>
+                                                <span className="text-sm font-bold text-foreground tabular-nums">{value}</span>
                                             </div>
-                                            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                                            <div className="h-2 overflow-hidden rounded-full bg-muted/50">
                                                 <div
                                                     className={`h-full rounded-full transition-all ${status.bar}`}
                                                     style={{ width: `${percentage}%` }}
@@ -247,8 +276,8 @@ export default function ProcurementDashboard({ stats, recent, userName }: Procur
                                         <FilePlus2 className="h-5 w-5" />
                                     </span>
                                     <div>
-                                        <h2 className="text-sm font-bold text-gray-900">Need suppliers for a new project?</h2>
-                                        <p className="mt-1.5 text-xs leading-5 text-gray-600">
+                                        <h2 className="text-sm font-bold text-foreground">Need suppliers for a new project?</h2>
+                                        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
                                             Set clear eligibility and compliance criteria to help the team find a suitable match.
                                         </p>
                                     </div>

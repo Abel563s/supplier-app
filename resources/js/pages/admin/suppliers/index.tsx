@@ -276,7 +276,7 @@ export default function AdminSuppliers({ suppliers, filters, stats, isAdmin, dep
                 </DialogContent>
             </Dialog>
 
-            <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {[
                     { label: 'Total suppliers', value: stats.total, icon: Users, tone: 'bg-slate-100 text-slate-700' },
                     { label: 'Awaiting review', value: stats.pending, icon: Clock3, tone: 'bg-amber-50 text-amber-700' },
@@ -299,7 +299,7 @@ export default function AdminSuppliers({ suppliers, filters, stats, isAdmin, dep
 
             <Card className="mb-5 rounded-2xl border-gray-200/80 shadow-sm">
                 <CardContent className="p-4 sm:p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-wrap items-center gap-2">
                             {tabs.map((tab) => {
                                 const count = tabCounts[tab.key || 'all'] || 0;
