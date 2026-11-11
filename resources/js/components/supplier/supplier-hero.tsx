@@ -204,7 +204,7 @@ export default function SupplierHero({ onOpenFaq }: SupplierHeroProps) {
                         </div>
 
                         {/* Modern Step Cards */}
-                        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                        <div className="relative px-4 sm:px-6 lg:px-8">
                             <div className="flex gap-6">
                                 {journeySteps.map((step) => {
                                     const stepColors: Record<number, { bg: string; icon: string; border: string }> = {
@@ -234,7 +234,7 @@ export default function SupplierHero({ onOpenFaq }: SupplierHeroProps) {
                                     return (
                                         <div key={step.number} className="flex-1 flex flex-col items-center gap-4">
                                             {/* Step Card */}
-                                            <div className={`relative z-10 flex flex-col items-center gap-3 rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${color.border} bg-white shadow-sm hover:shadow-md hover:-translate-y-1`}>
+                                            <div className={`relative z-10 flex-1 flex flex-col items-center gap-3 rounded-2xl border p-5 sm:p-6 h-full transition-all duration-300 ${color.border} bg-white shadow-sm hover:shadow-md hover:-translate-y-1`}>
                                                 <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${color.bg} transition-all duration-300`}>
                                                     <StepIcon className={`h-5 w-5 ${color.icon}`} />
                                                 </div>
