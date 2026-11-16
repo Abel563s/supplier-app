@@ -8,6 +8,7 @@ import { csrfHeaders } from '@/lib/csrf';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SearchableSelect from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PlusCircle, Trash2, Pencil, Tag, FileText, ArrowLeft } from 'lucide-react';
 import { Link, useForm } from '@inertiajs/react';
@@ -72,6 +73,23 @@ export default function BusinessScope({ step, supplier, contracts = [] }: Busine
         const selected = (data.procurement_type as string[]) || [];
         const updated = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value];
         setData('procurement_type', updated);
+    };
+
+    const { toast } = useToast();
+
+    const saveDraft: FormEventHandler = (e) => {
+        e.preventDefault();
+        fetch('/supplier/registration/business-scope', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
     };
 
     const nextStep: FormEventHandler = (e) => {
@@ -220,6 +238,13 @@ export default function BusinessScope({ step, supplier, contracts = [] }: Busine
             <Head title="Business Scope & Categories" />
 
             <form onSubmit={nextStep}>
+                <div className="mb-6 flex items-center justify-between border-t border-gray-200 pt-6">
+                    <Link href="/supplier/registration/contact" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Link>
+                </div>
+
                 <div className="space-y-6">
                     <FormSectionCard
                         title="Procurement Type"
@@ -328,8 +353,8 @@ export default function BusinessScope({ step, supplier, contracts = [] }: Busine
                         title="Similar Contracts & Experience"
                         description="List completed work similar in nature and complexity. This information may be used for supplier shortlisting."
                         icon={<svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg"><path d="M9 12H15M12 9V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/></svg>}
-                        status="complete"
-                        missingItems={[]}
+                        status={(localContracts || []).length > 0 ? 'complete' : 'not-started'}
+                        missingItems={(localContracts || []).length > 0 ? [] : ['Add at least one similar contract']}
                     >
                         <div className="mt-6">
                             {(localContracts || []).length === 0 ? (
@@ -388,11 +413,18 @@ export default function BusinessScope({ step, supplier, contracts = [] }: Busine
                 </div>
 
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                    <Link href="/supplier/registration/contact" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                    </Link>
-                    <Button onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => { e.preventDefault(); saveDraft(e as unknown as React.FormEvent); }}
+                        disabled={processing}
+                        className="h-11 px-8 text-sm font-medium border-gray-300 hover:border-[#00515F] text-[#00515F]"
+                    >
+                        {processing ? 'Saving...' : 'Save as Draft'}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
                         {processing ? 'Saving...' : 'Continue'}
                     </Button>
                 </div>

@@ -137,6 +137,13 @@ export default function Documents({ step, canRemoveDocuments, documentTypes, doc
             <Head title="Supporting Documents" />
 
             <form onSubmit={nextStep}>
+                <div className="mb-6 flex items-center justify-between border-t border-gray-200 pt-6">
+                    <Link href="/supplier/registration/ownership" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Link>
+                </div>
+
                 <div className="space-y-6">
                     <FormSectionCard
                         title={stepMetadata[step]?.title || 'Supporting Documents'}
@@ -257,11 +264,9 @@ export default function Documents({ step, canRemoveDocuments, documentTypes, doc
                 </div>
 
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                    <Link href="/supplier/registration/ownership" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                    </Link>
-                    <Button onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || requiredUploadedCount < requiredDocuments.length} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
+                    <Button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || requiredUploadedCount < requiredDocuments.length} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
                         {processing ? 'Saving...' : 'Continue'}
                     </Button>
                 </div>

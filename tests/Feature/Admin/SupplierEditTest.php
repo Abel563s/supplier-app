@@ -59,6 +59,7 @@ it('updates a supplier registration details', function () {
             'latest_annual_turnover' => 9000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
             'primary_contact_name' => 'Kebede Abebe',
             'primary_phone' => '+251911222333',
             'alternate_phone' => '+251911444555',

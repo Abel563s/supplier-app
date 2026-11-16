@@ -27,7 +27,7 @@ const stepMetadata: Record<number, string> = {
     1: '7 required fields',
     2: '5 required fields',
     3: '3 required fields',
-    4: 'Optional',
+    4: 'Bank & Financial',
     5: '1 required field',
     6: '4 minimum documents',
     7: 'Not completed',
@@ -53,7 +53,7 @@ const correctionSectionSteps: Record<string, number> = {
     declaration: 7,
 };
 
-export default function SupplierDashboard({ completion, supplierStatus, lastSavedStep = 1, correctionRequests = [] }: DashboardProps) {
+export default function SupplierDashboard({ completion, supplierStatus, correctionRequests = [] }: DashboardProps) {
     const statusMap: Record<string, 'completed' | 'in-progress' | 'not-started' | 'needs-attention'> = {
         complete: 'completed',
         partial: 'needs-attention',
@@ -65,11 +65,11 @@ export default function SupplierDashboard({ completion, supplierStatus, lastSave
     const isSubmitted = supplierStatus === 'submitted' || supplierStatus === 'approved';
 
     const sections = completion.steps
-        .filter((step) => isSubmitted || step.number === lastSavedStep)
+        .filter((step) => isSubmitted || ['partial', 'complete', 'needs-attention'].includes(step.status))
         .map((step) => ({
             number: step.number,
             title: step.title,
-            description: step.metadata || stepMetadata[step.number] || '',
+            description: stepMetadata[step.number] || step.metadata || '',
             status: statusMap[step.status] || 'not-started',
             href: step.href,
             progress: step.status === 'complete' ? 100 : step.status === 'partial' ? 50 : 0,

@@ -14,6 +14,8 @@ interface FormSectionProps {
     nextLabel?: string;
     isNextSubmitting?: boolean;
     disabled?: boolean;
+    onSaveDraft?: () => void;
+    isSavingDraft?: boolean;
 }
 
 export default function FormSection({
@@ -26,6 +28,8 @@ export default function FormSection({
     nextLabel,
     isNextSubmitting = false,
     disabled = false,
+    onSaveDraft,
+    isSavingDraft = false,
 }: FormSectionProps) {
     const primaryLabel = nextLabel || submitLabel;
     const handleClick = onNext || onSubmit;
@@ -44,6 +48,17 @@ export default function FormSection({
                         Back
                     </Link>
                 )}
+                {onSaveDraft && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onSaveDraft}
+                        disabled={isSavingDraft}
+                        className="h-11 px-8 text-sm font-medium border-gray-300 hover:border-[#00515F] text-[#00515F]"
+                    >
+                        {isSavingDraft ? 'Saving...' : 'Save as Draft'}
+                    </Button>
+                )}
             </div>
 
             <Separator className="bg-gray-200" />
@@ -54,7 +69,9 @@ export default function FormSection({
 
             {showPrimary && (
                 <div className="flex items-center justify-center border-t border-gray-200 pt-6">
-                    <Button onClick={handleClick} disabled={submitting || disabled} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
+                    <Button
+                        type="button"
+                        onClick={handleClick} disabled={submitting || disabled} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
                         {submitting ? 'Saving...' : primaryLabel}
                     </Button>
                 </div>

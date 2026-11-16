@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/admin/admin-layout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, Building2, Check, CheckCircle2, Eye, FileUp, History, Send, Trash2, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Building, Building2, Check, CheckCircle2, Eye, FileCheck, FileUp, History, Send, ShieldCheck, Tags, Trash2, Users, XCircle } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { useMemo } from 'react';
 import type { SupplierDocumentType } from '@/types';
@@ -105,6 +105,8 @@ interface AdminSupplierShowProps {
         latest_annual_turnover: number;
         date_established: string;
         trade_license_renewed_date: string;
+        trade_license_calendar_type: string;
+        trade_license_date_original: string;
         primary_contact_name: string;
         primary_phone: string;
         alternate_phone: string;
@@ -255,10 +257,10 @@ const reviewEventLabels: Record<string, string> = {
 };
 
 const InfoRow = ({ label, value, hint }: { label: string; value: string | number | null | undefined; hint?: string }) => (
-    <div className="min-w-0 rounded-xl bg-slate-50/80 p-3.5">
-        <Label className="text-[11px] font-semibold tracking-wider text-gray-500 uppercase">{label}</Label>
-        <p className="mt-1.5 text-sm font-medium break-words text-gray-900">{value || '-'}</p>
-        {hint && <p className="mt-1 text-xs font-semibold">{hint}</p>}
+    <div className="rounded-xl border border-[#e2e8f0] bg-white p-3.5 shadow-sm transition-all hover:shadow-md">
+        <Label className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">{label}</Label>
+        <p className="mt-1.5 text-sm font-semibold text-[#172B3A] break-words">{value || '-'}</p>
+        {hint && <p className="mt-1 text-xs font-medium text-[#647783]">{hint}</p>}
     </div>
 );
 
@@ -632,23 +634,46 @@ export default function AdminSupplierShow({
             )}
 
             <Tabs defaultValue="overview" className="mt-6">
-                <TabsList className="mb-6 h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="legal-entity">Legal Entity</TabsTrigger>
-                    <TabsTrigger value="contact">Contact</TabsTrigger>
-                    <TabsTrigger value="business">Business Scope</TabsTrigger>
-                    <TabsTrigger value="financial">Financial</TabsTrigger>
-                    <TabsTrigger value="ownership">Ownership</TabsTrigger>
-                    <TabsTrigger value="documents">Documents</TabsTrigger>
-                    <TabsTrigger value="contracts">Contracts</TabsTrigger>
-                    <TabsTrigger value="history">History</TabsTrigger>
-                    <TabsTrigger value="grade">Grade</TabsTrigger>
+                <TabsList className="mb-6 h-auto w-full justify-start gap-0.5 overflow-x-auto rounded-2xl border border-[#e2e8f0] bg-[#F8FAFC] p-[1px] shadow-sm">
+                    <TabsTrigger value="overview" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Overview
+                    </TabsTrigger>
+                    <TabsTrigger value="legal-entity" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Legal Entity
+                    </TabsTrigger>
+                    <TabsTrigger value="contact" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Contact
+                    </TabsTrigger>
+                    <TabsTrigger value="business" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Business Scope
+                    </TabsTrigger>
+                    <TabsTrigger value="financial" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Financial
+                    </TabsTrigger>
+                    <TabsTrigger value="ownership" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Ownership
+                    </TabsTrigger>
+                    <TabsTrigger value="documents" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Documents
+                    </TabsTrigger>
+                    <TabsTrigger value="contracts" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Contracts
+                    </TabsTrigger>
+                    <TabsTrigger value="history" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        History
+                    </TabsTrigger>
+                    <TabsTrigger value="grade" className="px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-[#00515F] data-[state=active]:text-white data-[state=active]:shadow-sm data-[state=active]:rounded-xl">
+                        Grade
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Company Overview</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <Building2 className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Company Overview</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Legal Name" value={supplier.legal_name} />
@@ -669,9 +694,12 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="legal-entity">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Legal Entity & Identification</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <FileUp className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Legal Entity & Identification</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Legal Form" value={formatLegalForm(supplier.legal_form)} />
@@ -686,12 +714,22 @@ export default function AdminSupplierShow({
                             <InfoRow label="Latest Annual Turnover (ETB)" value={formatCurrency(supplier.latest_annual_turnover)} />
                             <InfoRow label="Date Established" value={formatDate(supplier.date_established)} />
                             <InfoRow label="Trade License Renewed Date" value={formatDate(supplier.trade_license_renewed_date)} />
+                            <InfoRow label="Calendar Type" value={supplier.trade_license_calendar_type === 'ethiopian' ? 'Ethiopian Calendar (EC)' : 'Gregorian Calendar (GC)'} />
+                            {supplier.trade_license_calendar_type === 'ethiopian' && (
+                                <>
+                                    <InfoRow label="Original Ethiopian Date" value={supplier.trade_license_date_original || formatDate(supplier.trade_license_renewed_date)} />
+                                    <InfoRow label="Gregorian Equivalent" value={formatDate(supplier.trade_license_renewed_date)} />
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 
-                    <Card className="mt-6 rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-base">Tax Information</CardTitle>
+                    <Card className="mt-6 overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <FileCheck className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Tax Information</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Tax Clearance From" value={formatDate(supplier.tax_clearance_from)} />
@@ -706,9 +744,12 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="contact">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Contact & Location</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Contact & Location</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Primary Contact — Full Name" value={supplier.primary_contact_name} />
@@ -724,9 +765,12 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="business">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Business Scope & Categories</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <Tags className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Business Scope & Categories</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <div className="md:col-span-2 lg:col-span-3">
@@ -742,28 +786,31 @@ export default function AdminSupplierShow({
                     </Card>
 
                     {contracts.length > 0 && (
-                        <Card className="mt-6">
-                            <CardHeader>
-                                <CardTitle>Similar Contracts & Experience</CardTitle>
+                        <Card className="mt-6 overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                            <CardHeader className="pb-4">
+                                <div className="flex items-center gap-2">
+                                    <Check className="h-5 w-5 text-[#00515F]" />
+<CardTitle className="text-lg font-semibold text-[#172B3A]">Similar Contracts & Experience</CardTitle>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm">
                                         <thead>
-                                            <tr className="border-b border-gray-200">
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Client / Project</th>
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Nature / Similarity</th>
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Value</th>
-                                                <th className="pb-3 font-medium text-gray-500">Date</th>
+                                            <tr className="border-b border-[#e2e8f0]">
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Client / Project</th>
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Nature / Similarity</th>
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Value</th>
+                                                <th className="pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Date</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100">
+                                        <tbody className="divide-y divide-[#e2e8f0]">
                                             {contracts.map((contract) => (
-                                                <tr key={contract.id}>
-                                                    <td className="py-3 pr-4 font-medium text-gray-900">{contract.client_project_name}</td>
-                                                    <td className="py-3 pr-4 text-gray-600">{contract.nature_similarity}</td>
-                                                    <td className="py-3 pr-4 text-gray-900">{contract.contract_value}</td>
-                                                    <td className="py-3 text-gray-600">
+                                                <tr key={contract.id} className="group hover:bg-[#F8FAFC]">
+                                                    <td className="py-3 pr-4 font-medium text-[#172B3A]">{contract.client_project_name}</td>
+                                                    <td className="py-3 pr-4 text-[#647783]">{contract.nature_similarity}</td>
+                                                    <td className="py-3 pr-4 font-medium text-[#172B3A]">{contract.contract_value}</td>
+                                                    <td className="py-3 text-[#647783]">
                                                         {new Date(contract.contract_date).toLocaleDateString('en-GB')}
                                                     </td>
                                                 </tr>
@@ -777,10 +824,13 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="financial">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Bank & Financial Information</CardTitle>
-                            <p className="text-sm text-gray-500">Optional section</p>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <Building className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Bank & Financial Information</CardTitle>
+                                <p className="text-xs text-[#647783]">Optional section</p>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Bank Name" value={supplier.bank_name} />
@@ -806,9 +856,12 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="ownership">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Ownership & Signatory</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <Users className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Ownership & Signatory</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <InfoRow label="Signatory Title" value={supplier.signatory_title} />
@@ -818,35 +871,40 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="documents">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                            <CardTitle>Supporting Documents</CardTitle>
-                            <p className="text-sm text-gray-500">
-                                {uploadedDocuments} upload{uploadedDocuments === 1 ? '' : 's'} across {documentTypes.length} document types
-                            </p>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="space-y-1">
+                                    <Send className="h-5 w-5 text-[#00515F] inline mr-2" />
+                                    <CardTitle className="text-lg font-semibold text-[#172B3A]">Supporting Documents</CardTitle>
+                                </div>
+                                <p className="text-sm text-[#647783]">
+                                    {uploadedDocuments} upload{uploadedDocuments === 1 ? '' : 's'} across {documentTypes.length} document types
+                                </p>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead>
-                                        <tr className="border-b border-gray-200">
-                                            <th className="pr-4 pb-3 font-medium text-gray-500">Document</th>
-                                            <th className="pr-4 pb-3 font-medium text-gray-500">File</th>
-                                            <th className="pr-4 pb-3 font-medium text-gray-500">Uploaded</th>
-                                            <th className="pr-4 pb-3 font-medium text-gray-500">Status</th>
-                                            <th className="pb-3 text-right font-medium text-gray-500">Actions</th>
+                                        <tr className="border-b border-[#e2e8f0]">
+                                            <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Document</th>
+                                            <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">File</th>
+                                            <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Uploaded</th>
+                                            <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Status</th>
+                                            <th className="pb-3 text-right font-medium text-[#647783] uppercase tracking-wider text-xs">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100">
+                                    <tbody className="divide-y divide-[#e2e8f0]">
                                         {documentRows.map(({ documentType, uploads }) =>
                                             uploads.length === 0 ? (
                                                 <tr key={`${documentType.key}-empty`} className="bg-gray-50/60">
-                                                    <td className="py-4 pr-4 font-medium text-gray-900">
+                                                    <td className="py-4 pr-4 font-medium text-[#172B3A]">
                                                         {documentType.label}
                                                         {documentType.required && <span className="ml-1 text-red-500">*</span>}
                                                     </td>
-                                                    <td className="py-4 pr-4 text-gray-600">Not uploaded</td>
-                                                    <td className="py-4 pr-4 text-gray-600">—</td>
+                                                    <td className="py-4 pr-4 text-[#647783]">Not uploaded</td>
+                                                    <td className="py-4 pr-4 text-[#647783]">—</td>
                                                     <td className="py-4 pr-4">
                                                         <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
                                                             Not uploaded
@@ -856,18 +914,18 @@ export default function AdminSupplierShow({
                                                 </tr>
                                             ) : (
                                                 uploads.map((document, index) => (
-                                                    <tr key={document.id}>
-                                                        <td className="py-4 pr-4 font-medium text-gray-900">
+                                                    <tr key={document.id} className="group hover:bg-[#F8FAFC]">
+                                                        <td className="py-4 pr-4 font-medium text-[#172B3A]">
                                                             {documentType.label}
                                                             {documentType.required && <span className="ml-1 text-red-500">*</span>}
                                                             {uploads.length > 1 && (
-                                                                <span className="mt-1 block text-xs font-normal text-gray-500">
+                                                                <span className="mt-1 block text-xs font-normal text-[#647783]">
                                                                     {index === 0 ? 'Latest upload' : 'Previous upload'}
                                                                 </span>
                                                             )}
                                                         </td>
-                                                        <td className="py-4 pr-4 text-gray-600">{document.file_name}</td>
-                                                        <td className="py-4 pr-4 text-gray-600">
+                                                        <td className="py-4 pr-4 text-[#647783]">{document.file_name}</td>
+                                                        <td className="py-4 pr-4 text-[#647783]">
                                                             {document.uploaded_at ? new Date(document.uploaded_at).toLocaleDateString('en-GB') : '—'}
                                                         </td>
                                                         <td className="py-4 pr-4">
@@ -988,31 +1046,37 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="contracts">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Similar Contracts & Experience</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <History className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Similar Contracts & Experience</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {contracts.length === 0 ? (
-                                <p className="text-sm text-gray-500">No contracts submitted.</p>
+                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                    <History className="h-12 w-12 text-[#cbd5e1] mx-auto mb-4" />
+                                    <p className="text-sm text-[#647783]">No contracts submitted.</p>
+                                </div>
                             ) : (
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm">
                                         <thead>
-                                            <tr className="border-b border-gray-200">
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Client / Project</th>
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Nature / Similarity</th>
-                                                <th className="pr-4 pb-3 font-medium text-gray-500">Value</th>
-                                                <th className="pb-3 font-medium text-gray-500">Date</th>
+                                            <tr className="border-b border-[#e2e8f0]">
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Client / Project</th>
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Nature / Similarity</th>
+                                                <th className="pr-4 pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Value</th>
+                                                <th className="pb-3 font-medium text-[#647783] uppercase tracking-wider text-xs">Date</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100">
+                                        <tbody className="divide-y divide-[#e2e8f0]">
                                             {contracts.map((contract) => (
-                                                <tr key={contract.id}>
-                                                    <td className="py-3 pr-4 font-medium text-gray-900">{contract.client_project_name}</td>
-                                                    <td className="py-3 pr-4 text-gray-600">{contract.nature_similarity}</td>
-                                                    <td className="py-3 pr-4 text-gray-900">{contract.contract_value}</td>
-                                                    <td className="py-3 text-gray-600">
+                                                <tr key={contract.id} className="group hover:bg-[#F8FAFC]">
+                                                    <td className="py-3 pr-4 font-medium text-[#172B3A]">{contract.client_project_name}</td>
+                                                    <td className="py-3 pr-4 text-[#647783]">{contract.nature_similarity}</td>
+                                                    <td className="py-3 pr-4 font-medium text-[#172B3A]">{contract.contract_value}</td>
+                                                    <td className="py-3 text-[#647783]">
                                                         {new Date(contract.contract_date).toLocaleDateString('en-GB')}
                                                     </td>
                                                 </tr>
@@ -1026,37 +1090,40 @@ export default function AdminSupplierShow({
                 </TabsContent>
 
                 <TabsContent value="history">
-                    <Card className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                        <CardHeader>
-                            <CardTitle>Status History & Correction Requests</CardTitle>
+                    <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2">
+                                <History className="h-5 w-5 text-[#00515F]" />
+                                <CardTitle className="text-lg font-semibold text-[#172B3A]">Status History & Correction Requests</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                                        <History className="h-4 w-4" />
+                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#172B3A]">
+                                        <History className="h-4 w-4 text-[#00515F]" />
                                         Approval Journey
                                     </h3>
                                     <div className="space-y-4">
                                         {reviewHistory.map((entry) => (
-                                            <div key={entry.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                                            <div key={entry.id} className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <span className="font-semibold text-gray-900">
+                                                    <span className="font-semibold text-[#172B3A]">
                                                         {reviewEventLabels[entry.event_type] ?? statusLabel(entry.event_type)}
                                                     </span>
-                                                    <time className="text-xs text-gray-500">
+                                                    <time className="text-xs text-[#647783]">
                                                         {new Date(entry.created_at).toLocaleString('en-GB')}
                                                     </time>
                                                 </div>
-                                                <p className="mt-1 text-sm text-gray-600">
+                                                <p className="mt-1 text-sm text-[#647783]">
                                                     {entry.department_role?.name ?? 'Admin'} · {entry.actor?.name ?? 'Former user'}
                                                 </p>
-                                                {entry.notes && <p className="mt-2 text-sm text-gray-600">{entry.notes}</p>}
+                                                {entry.notes && <p className="mt-2 text-sm text-[#647783]">{entry.notes}</p>}
                                                 {entry.grade_snapshot && (
                                                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                                         {Object.entries(entry.grade_snapshot).map(([type, scores]) => (
-                                                            <p key={type} className="rounded-lg bg-slate-50 p-2 text-xs text-gray-700">
-                                                                <span className="font-semibold">{procurementTypeLabels[type] ?? type}:</span>{' '}
+                                                            <p key={type} className="rounded-lg bg-[#F8FAFC] p-2 text-xs text-[#647783]">
+                                                                <span className="font-semibold text-[#172B3A]">{procurementTypeLabels[type] ?? type}:</span>{' '}
                                                                 {Object.entries(scores)
                                                                     .map(([criterion, score]) => `${statusLabel(criterion)} ${score}`)
                                                                     .join(' · ')}
@@ -1067,19 +1134,19 @@ export default function AdminSupplierShow({
                                             </div>
                                         ))}
                                         {reviewHistory.length === 0 && (
-                                            <p className="text-sm text-gray-500">No Admin or departmental review activity recorded.</p>
+                                            <p className="text-sm text-[#647783]">No Admin or departmental review activity recorded.</p>
                                         )}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                                        <History className="h-4 w-4" />
+                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#172B3A]">
+                                        <History className="h-4 w-4 text-[#00515F]" />
                                         Status Changes
                                     </h3>
                                     <div className="space-y-4">
                                         {statusHistory.map((entry) => (
-                                            <div key={entry.id} className="flex gap-4 border-l-2 border-gray-200 pl-4">
+                                            <div key={entry.id} className="flex gap-4 border-l-2 border-[#00515F] pl-4">
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2">
                                                         <span
@@ -1087,36 +1154,36 @@ export default function AdminSupplierShow({
                                                         >
                                                             {statusLabel(entry.new_status)}
                                                         </span>
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-xs text-[#647783]">
                                                             {new Date(entry.created_at).toLocaleString('en-GB')}
                                                         </span>
                                                     </div>
-                                                    {entry.notes && <p className="mt-1 text-sm text-gray-600">{entry.notes}</p>}
-                                                    <p className="mt-1 text-xs text-gray-500">By {entry.changer?.name || 'System'}</p>
+                                                    {entry.notes && <p className="mt-1 text-sm text-[#647783]">{entry.notes}</p>}
+                                                    <p className="mt-1 text-xs text-[#647783]">By {entry.changer?.name || 'System'}</p>
                                                 </div>
                                             </div>
                                         ))}
-                                        {statusHistory.length === 0 && <p className="text-sm text-gray-500">No status changes recorded.</p>}
+                                        {statusHistory.length === 0 && <p className="text-sm text-[#647783]">No status changes recorded.</p>}
                                     </div>
                                 </div>
 
                                 {correctionRequests.length > 0 && (
                                     <div>
-                                        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                                            <AlertCircle className="h-4 w-4" />
+                                        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#172B3A]">
+                                            <AlertCircle className="h-4 w-4 text-[#00515F]" />
                                             Correction Requests
                                         </h3>
                                         <div className="space-y-4">
                                             {correctionRequests.map((request) => (
-                                                <div key={request.id} className="rounded-lg border border-gray-200 p-4">
+                                                <div key={request.id} className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium text-gray-900">{request.section}</span>
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-sm font-medium text-[#172B3A]">{request.section}</span>
+                                                        <span className="text-xs text-[#647783]">
                                                             {new Date(request.created_at).toLocaleString('en-GB')}
                                                         </span>
                                                     </div>
-                                                    <p className="mt-2 text-sm text-gray-600">{request.reason}</p>
-                                                    <p className="mt-2 text-xs text-gray-500">Requested by {request.requester?.name || 'Admin'}</p>
+                                                    <p className="mt-2 text-sm text-[#647783]">{request.reason}</p>
+                                                    <p className="mt-2 text-xs text-[#647783]">Requested by {request.requester?.name || 'Admin'}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -1146,9 +1213,12 @@ export default function AdminSupplierShow({
                                         : Number(((total / group.maximumScore) * group.contributionPercent).toFixed(1));
 
                                     return (
-                                        <Card key={group.key} className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>{group.label}</CardTitle>
+                                        <Card key={group.key} className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                                            <CardHeader className="pb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <ShieldCheck className="h-5 w-5 text-[#00515F]" />
+                                                    <CardTitle className="text-lg font-semibold text-[#172B3A]">{group.label}</CardTitle>
+                                                </div>
                                             </CardHeader>
                                             <CardContent className="space-y-5">
                                                 {group.criteria.map((criterion) => {
@@ -1162,9 +1232,9 @@ export default function AdminSupplierShow({
                                                             key={criterion.key}
                                                             className="space-y-3"
                                                         >
-                                                            <Label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                                            <Label className="flex items-center gap-2 text-sm font-medium text-[#172B3A]">
                                                                 {criterion.label}
-                                                                <span className="text-sm font-normal text-gray-500">
+                                                                <span className="text-sm font-normal text-[#647783]">
                                                                     ({criterion.maximumScore} pts - currently {currentScore})
                                                                 </span>
                                                             </Label>
@@ -1191,7 +1261,7 @@ export default function AdminSupplierShow({
                                                                             className={`flex h-9 w-9 items-center justify-center rounded-lg border-2 transition-all focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
                                                                                 isActive
                                                                                     ? 'border-teal-500 bg-teal-500 text-white'
-                                                                                    : 'border-gray-300 bg-white text-gray-400 hover:border-teal-300 hover:bg-teal-50'
+                                                                                    : 'border-[#e2e8f0] bg-white text-[#647783] hover:border-[#00515F] hover:bg-[#F0FDFD]'
                                                                             }`}
                                                                         >
                                                                             {isActive ? <Check className="h-4 w-4 stroke-[3]" /> : point}
@@ -1210,7 +1280,7 @@ export default function AdminSupplierShow({
                                                         </div>
                                                     );
                                                 })}
-                                                <p className="text-right text-sm font-semibold text-gray-700">
+                                                <p className="text-right text-sm font-semibold text-[#172B3A]">
                                                     Total:{' '}
                                                     {isComplete
                                                         ? `${Number(total.toFixed(2))} / ${group.maximumScore} points${
@@ -1226,8 +1296,8 @@ export default function AdminSupplierShow({
                                 })}
                             </div>
                         ) : (
-                            <Card className="rounded-2xl border-gray-200/80 shadow-sm">
-                                <CardContent className="py-8 text-center text-sm text-gray-500">
+                            <Card className="overflow-hidden rounded-2xl border-[#e2e8f0] bg-white shadow-sm">
+                                <CardContent className="py-8 text-center text-sm text-[#647783]">
                                     Add a procurement type to this supplier before grading.
                                 </CardContent>
                             </Card>
@@ -1242,7 +1312,7 @@ export default function AdminSupplierShow({
                                 </div>
                             )
                         ) : (
-                            <p className="rounded-lg bg-slate-100 p-3 text-sm text-slate-600">
+                            <p className="rounded-lg bg-[#F8FAFC] p-3 text-sm text-[#647783]">
                                 {isDepartmentReviewer
                                     ? 'This department review has been completed. Grades are read-only.'
                                     : 'The initial Admin grading stage is complete. Saved grades are read-only.'}

@@ -13,6 +13,7 @@ use App\Models\SupplierReviewHistory;
 use App\Models\SupplierStatusHistory;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Utils\EthiopianCalendar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -48,6 +49,7 @@ class SupplierController extends Controller
         'latest_annual_turnover',
         'date_established',
         'trade_license_renewed_date',
+        'trade_license_calendar_type',
         'primary_contact_name',
         'primary_phone',
         'alternate_phone',
@@ -147,6 +149,10 @@ class SupplierController extends Controller
         $validated = $request->validated();
 
         $supplier = DB::transaction(fn (): Supplier => $this->createSupplier($validated));
+
+        if ($request->input('save_draft')) {
+            return back()->with('success', 'Draft saved successfully.');
+        }
 
         if ($supplier->status === 'submitted') {
             $notificationService->notifySupplierRegistered($supplier);
@@ -504,11 +510,30 @@ class SupplierController extends Controller
     {
         $validated = $request->validated();
 
+        // Handle Ethiopian calendar date conversion
+        if (! empty($validated['trade_license_calendar_type']) && $validated['trade_license_calendar_type'] === 'ethiopian') {
+            $dateOriginal = $validated['trade_license_date_original'] ?? null;
+            if ($dateOriginal) {
+                $ethiopian = \DateTime::createFromFormat('Y-m-d', $dateOriginal);
+                if ($ethiopian) {
+                    $validated['trade_license_renewed_date'] = EthiopianCalendar::ethiopianToGregorian(
+                        (int) $ethiopian->format('Y'),
+                        (int) $ethiopian->format('m'),
+                        (int) $ethiopian->format('d')
+                    );
+                }
+            }
+        }
+
         if (isset($validated['procurement_type']) && is_array($validated['procurement_type'])) {
             $validated['procurement_type'] = implode(',', $validated['procurement_type']);
         }
 
         $supplier->update($validated);
+
+        if ($request->input('save_draft')) {
+            return back()->with('success', 'Draft saved successfully.');
+        }
 
         if ($supplier->status !== 'draft') {
             $notificationService->notifySupplierUpdated($supplier);

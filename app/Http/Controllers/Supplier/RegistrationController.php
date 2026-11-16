@@ -15,6 +15,7 @@ use App\Models\SupplierDocument;
 use App\Models\SupplierStatusHistory;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Utils\EthiopianCalendar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -87,6 +88,21 @@ class RegistrationController extends Controller
             default => abort(404),
         };
 
+        // Handle Ethiopian calendar date conversion for step 1
+        if ($step === 1 && ! empty($validated['trade_license_calendar_type']) && $validated['trade_license_calendar_type'] === 'ethiopian') {
+            $dateOriginal = $validated['trade_license_date_original'] ?? null;
+            if ($dateOriginal) {
+                $ethiopian = \DateTime::createFromFormat('Y-m-d', $dateOriginal);
+                if ($ethiopian) {
+                    $validated['trade_license_renewed_date'] = EthiopianCalendar::ethiopianToGregorian(
+                        (int) $ethiopian->format('Y'),
+                        (int) $ethiopian->format('m'),
+                        (int) $ethiopian->format('d')
+                    );
+                }
+            }
+        }
+
         if (isset($validated['procurement_type']) && is_array($validated['procurement_type'])) {
             $validated['procurement_type'] = implode(',', $validated['procurement_type']);
         }
@@ -94,6 +110,15 @@ class RegistrationController extends Controller
         $supplier->fill($validated);
         $supplier->save();
         $this->resolveCorrectionRequestsForStep($supplier, $step, $request->user());
+
+        // Save as draft: stay on the current step instead of advancing
+        if ($request->input('save_draft')) {
+            return Inertia::render($stepViews[$step] ?? 'supplier/dashboard', [
+                'step' => $step,
+                'supplier' => $supplier->fresh(),
+                'completion' => $this->calculateCompletion($request->user(), $step),
+            ])->with('success', 'Draft saved successfully.');
+        }
 
         $currentStatus = $supplier->status;
 
@@ -438,9 +463,13 @@ class RegistrationController extends Controller
     private function getOptionalStepStatus($supplier, array $fields): string
     {
         $count = collect($fields)->filter(fn ($field) => $this->isFieldFilled($supplier->getAttribute($field)))->count();
+        $total = count($fields);
 
-        if ($count > 0) {
+        if ($count === $total) {
             return 'complete';
+        }
+        if ($count > 0) {
+            return 'partial';
         }
 
         return 'not-started';

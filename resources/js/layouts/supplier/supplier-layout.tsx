@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ToastProvider } from '@/components/ui/toast';
 import { Link, usePage } from '@inertiajs/react';
 import { HelpCircle, LogOut, User } from 'lucide-react';
 import { type ReactNode } from 'react';
@@ -156,7 +157,9 @@ export default function SupplierLayout({ children, currentStep = 1, isDashboard 
                             </>
                         )}
 
-                        <div className="w-full">{children}</div>
+                        <ToastProvider>
+                            <div className="w-full">{children}</div>
+                        </ToastProvider>
                     </div>
                 </div>
             </div>

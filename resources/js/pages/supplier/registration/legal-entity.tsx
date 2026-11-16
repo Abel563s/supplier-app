@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import SupplierLayout from '@/layouts/supplier/supplier-layout';
 import FormSectionCard from '@/components/admin/form-section-card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import InputError from '@/components/input-error';
 import { useForm } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { FormEventHandler, useState } from 'react';
 import { Receipt } from 'lucide-react';
 import { countryOfRegistrationOptions, legalFormOptions } from '@/lib/registration-options';
+import { gregorianToEthiopian, formatEthiopianDate } from '@/lib/ethiopian-calendar';
 
 const otherCountryValue = 'other';
 const otherLegalFormValue = 'other';
@@ -42,6 +44,7 @@ const requiredFieldsBySection: Record<string, RequiredField[]> = {
     registration: [
         { key: 'business_registration_no', label: 'Business Registration No.' },
         { key: 'trade_license_renewed_date', label: 'Trade License Renewed Date' },
+        { key: 'trade_license_calendar_type', label: 'Trade License Calendar Type' },
     ],
     company: [
         { key: 'registered_capital', label: 'Registered Capital (ETB)' },
@@ -58,8 +61,12 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
     const supplierRecord = (supplier ?? {}) as Record<string, string | boolean | null | undefined>;
     const supplierText = (key: string): string => {
         const value = supplierRecord[key];
-
-        return typeof value === 'string' ? value : '';
+        if (value === null || value === undefined) return '';
+        return typeof value === 'string' ? value : String(value);
+    };
+    const dateValue = (value: string | number | boolean | null | undefined): string => {
+        if (!value) return '';
+        return String(value).slice(0, 10);
     };
     const supplierBoolean = (key: string): boolean => supplierRecord[key] === true;
 
@@ -79,15 +86,34 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
         vat_registration_no: supplierText('vat_registration_no'),
         registered_capital: supplierText('registered_capital'),
         latest_annual_turnover: supplierText('latest_annual_turnover'),
-        date_established: supplierText('date_established'),
+        date_established: dateValue(supplierRecord['date_established']),
         trade_license_renewed_date: supplierText('trade_license_renewed_date'),
-        tax_clearance_from: supplierText('tax_clearance_from'),
-        tax_clearance_to: supplierText('tax_clearance_to'),
+        trade_license_calendar_type: supplierText('trade_license_calendar_type'),
+        trade_license_date_original: supplierText('trade_license_date_original'),
+        tax_clearance_from: dateValue(supplierRecord['tax_clearance_from']),
+        tax_clearance_to: dateValue(supplierRecord['tax_clearance_to']),
         tax_clearance_fiscal_year: supplierText('tax_clearance_fiscal_year'),
     });
 
     const [isOtherCountry, setIsOtherCountry] = useState(!initialCountryIsListed);
     const [isOtherLegalForm, setIsOtherLegalForm] = useState(!initialLegalFormIsListed);
+    const { toast } = useToast();
+    const [calendarType, setCalendarType] = useState<'gregorian' | 'ethiopian' | undefined>(data.trade_license_calendar_type as 'gregorian' | 'ethiopian' | undefined || undefined);
+
+    const saveDraft: FormEventHandler = (e) => {
+        e.preventDefault();
+        fetch('/supplier/registration/legal-entity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
+    };
 
     const nextStep: FormEventHandler = (e) => {
         e.preventDefault();
@@ -132,6 +158,13 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
             <Head title="Legal Entity & Identification" />
 
             <form onSubmit={nextStep}>
+                <div className="mb-6 flex items-center justify-between border-t border-gray-200 pt-6">
+                    <Link href="/supplier" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Link>
+                </div>
+
                 <div className="space-y-6">
                     <FormSectionCard
                         title="Legal Information"
@@ -253,6 +286,72 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
                                 <InputError message={errors.business_registration_no as string} className="mt-2" />
                             </div>
 
+                                    <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <Label htmlFor="trade_license_calendar_type" className="text-sm font-medium text-gray-700 form-required">Trade License Calendar Type</Label>
+                                            <Select
+                                                value={calendarType as string}
+                                                onValueChange={(value) => {
+                                                    setCalendarType(value as 'gregorian' | 'ethiopian');
+                                                    setData('trade_license_calendar_type', value as string);
+                                                }}
+                                                className="max-w-full"
+                                            >
+                                                <SelectTrigger id="trade_license_calendar_type" className="mt-1.5 h-11 max-w-full">
+                                                    <SelectValue placeholder="Select Calander Type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="gregorian">Gregorian Calendar (GC)</SelectItem>
+                                                    <SelectItem value="ethiopian">Ethiopian Calendar (EC)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError message={errors.trade_license_calendar_type as string} className="mt-2" />
+                                        </div>
+
+                                <div className="flex-1 min-w-0">
+                                    <Label htmlFor="trade_license_renewed_date" className="text-sm font-medium text-gray-700 form-required">Trade License Renewed Date</Label>
+                                    <Input
+                                        id="trade_license_renewed_date"
+                                        type="date"
+                                        value={dateValue(data.trade_license_renewed_date)}
+                                        onChange={(e) => {
+                                            const date = e.target.value;
+                                            setData('trade_license_renewed_date', date);
+
+                                            // Store original date in the selected calendar format
+                                            if (calendarType === 'ethiopian' && date) {
+                                                const ethiopian = gregorianToEthiopian(date);
+                                                setData('trade_license_date_original', `${ethiopian.year}-${String(ethiopian.month).padStart(2, '0')}-${String(ethiopian.day).padStart(2, '0')}`);
+                                            } else {
+                                                setData('trade_license_date_original', date);
+                                            }
+                                        }}
+                                        className="mt-1.5 h-11 max-w-full"
+                                    />
+                                    <InputError message={errors.trade_license_renewed_date as string} className="mt-2" />
+                                </div>
+                                    </div>
+
+                            {calendarType === 'ethiopian' && data.trade_license_renewed_date && (
+                                <div className="md:col-span-2 pt-2 bg-[#F0FDFD] rounded-lg border border-[#00ADC5]/30 p-3">
+                                    <Label className="text-xs font-medium text-[#00ADC5] uppercase tracking-wider">Ethiopian Date Equivalent (EC)</Label>
+                                    <p className="mt-1 text-sm font-semibold text-[#00515F]">
+                                        {formatEthiopianDate(
+                                            gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).year,
+                                            gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).month,
+                                            gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).day
+                                        )}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-[#647783]">Original EC date stored: {data.trade_license_date_original || '—'}</p>
+                                </div>
+                            )}
+
+                            <div className="md:col-span-1">
+                                <Label htmlFor="vat_registration_no" className="text-sm font-medium text-gray-700">VAT Registration No.</Label>
+                                <Input id="vat_registration_no" value={data.vat_registration_no} onChange={(e) => setData('vat_registration_no', e.target.value)} className="mt-1.5 h-11" placeholder="VAT registration number" />
+                                <InputError message={errors.vat_registration_no as string} className="mt-2" />
+                            </div>
+
                             <div className="md:col-span-1">
                                 <div className="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
                                     <Checkbox id="vat_registered" checked={data.vat_registered} onCheckedChange={(checked) => setData('vat_registered', !!checked)} className="mt-0.5" />
@@ -261,12 +360,6 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
                                         <p className="text-xs text-gray-500">Check if the company is VAT registered.</p>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="md:col-span-1">
-                                <Label htmlFor="vat_registration_no" className="text-sm font-medium text-gray-700">VAT Registration No.</Label>
-                                <Input id="vat_registration_no" value={data.vat_registration_no} onChange={(e) => setData('vat_registration_no', e.target.value)} className="mt-1.5 h-11" placeholder="VAT registration number" />
-                                <InputError message={errors.vat_registration_no as string} className="mt-2" />
                             </div>
                         </div>
                     </FormSectionCard>
@@ -295,12 +388,6 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
                                 <Label htmlFor="date_established" className="text-sm font-medium text-gray-700 form-required">Date Established</Label>
                                 <Input id="date_established" type="date" value={data.date_established} onChange={(e) => setData('date_established', e.target.value)} className="mt-1.5 h-11" />
                                 <InputError message={errors.date_established as string} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="trade_license_renewed_date" className="text-sm font-medium text-gray-700 form-required">Trade License Renewed Date</Label>
-                                <Input id="trade_license_renewed_date" type="date" value={data.trade_license_renewed_date} onChange={(e) => setData('trade_license_renewed_date', e.target.value)} className="mt-1.5 h-11" />
-                                <InputError message={errors.trade_license_renewed_date as string} className="mt-2" />
                             </div>
                         </div>
                     </FormSectionCard>
@@ -334,8 +421,19 @@ export default function LegalEntity({ step, supplier, completion }: LegalEntityP
                     </FormSectionCard>
                 </div>
 
-                <div className="flex items-center justify-center border-t border-gray-200 pt-6">
-                    <Button onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
+                <div className="flex items-center justify-center border-t border-gray-200 pt-6 gap-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => { e.preventDefault(); saveDraft(e as unknown as React.FormEvent); }}
+                        disabled={processing}
+                        className="h-11 px-8 text-sm font-medium border-gray-300 hover:border-[#00515F] text-[#00515F]"
+                    >
+                        {processing ? 'Saving...' : 'Save as Draft'}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
                         {processing ? 'Saving...' : 'Continue'}
                     </Button>
                 </div>

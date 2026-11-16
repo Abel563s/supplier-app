@@ -19,6 +19,7 @@ function supplierRegistrationDetails(array $overrides = []): array
         'latest_annual_turnover' => 5000000,
         'date_established' => '2015-04-01',
         'trade_license_renewed_date' => '2026-06-30',
+        'trade_license_calendar_type' => 'gregorian',
         'primary_contact_name' => 'Abebe Kebede',
         'primary_phone' => '+251911000000',
         'alternate_phone' => '+251911000001',

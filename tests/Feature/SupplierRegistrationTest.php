@@ -82,6 +82,7 @@ it('shows active correction requests and resolves only the section the supplier 
             'latest_annual_turnover' => 5000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
             'tax_clearance_from' => '2025-07-01',
             'tax_clearance_to' => '2026-06-30',
         ])
@@ -195,6 +196,7 @@ it('requires the tax clearance range in the legal entity step', function () {
             'latest_annual_turnover' => 5000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
         ]);
 
     $response->assertInvalid([
@@ -218,6 +220,7 @@ it('stores a legal form entered through the other option', function () {
             'latest_annual_turnover' => 5000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
             'tax_clearance_from' => '2025-07-01',
             'tax_clearance_to' => '2026-06-30',
         ]);
@@ -266,6 +269,7 @@ it('stores the tax clearance range from the legal entity step', function () {
             'latest_annual_turnover' => 5000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
             'tax_clearance_from' => '2025-07-01',
             'tax_clearance_to' => '2026-06-30',
             'tax_clearance_fiscal_year' => '2017 E.C.',
@@ -296,6 +300,7 @@ it('stores a country of registration entered through the other option', function
             'latest_annual_turnover' => 5000000,
             'date_established' => '2015-04-01',
             'trade_license_renewed_date' => '2026-06-30',
+            'trade_license_calendar_type' => 'gregorian',
             'tax_clearance_from' => '2025-07-01',
             'tax_clearance_to' => '2026-06-30',
         ]);

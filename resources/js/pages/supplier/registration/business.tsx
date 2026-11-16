@@ -4,6 +4,7 @@ import FormSection from '@/components/supplier/form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast';
 
 interface BusinessForm {
     products_services: string;
@@ -23,6 +24,23 @@ export default function BusinessRegistration() {
         years_in_business: '',
         description: '',
     });
+
+    const { toast } = useToast();
+
+    const saveDraft = (e: React.FormEvent) => {
+        e.preventDefault();
+        fetch('/supplier/registration/business', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,6 +62,8 @@ export default function BusinessRegistration() {
                     isSubmitting={processing}
                     showSaveDraft={true}
                     lastSaved="Today at 9:42 AM"
+                    onSaveDraft={saveDraft}
+                    isSavingDraft={processing}
                 >
                     <div className="space-y-6">
                         <div>

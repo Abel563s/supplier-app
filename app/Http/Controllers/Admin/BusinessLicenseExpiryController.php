@@ -90,6 +90,8 @@ class BusinessLicenseExpiryController extends Controller
                 'business_registration_no',
                 'primary_contact_name',
                 'primary_phone',
+                'trade_license_calendar_type',
+                'trade_license_renewed_date',
             ])
             ->orderBy('legal_name')
             ->paginate(15)
@@ -154,6 +156,8 @@ class BusinessLicenseExpiryController extends Controller
             'business_registration_no' => $supplier->business_registration_no,
             'contact_name' => $supplier->primary_contact_name,
             'contact_phone' => $supplier->primary_phone,
+            'trade_license_calendar_type' => $supplier->trade_license_calendar_type,
+            'trade_license_renewed_date' => $supplier->trade_license_renewed_date,
             'expiry_date' => $expiryDate,
             'days_remaining' => $daysRemaining,
             'status' => $status,

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Utils\EthiopianCalendar;
 
 class SupplierUpdateRequest extends FormRequest
 {
@@ -32,6 +33,8 @@ class SupplierUpdateRequest extends FormRequest
             'registered_capital' => ['required', 'integer', 'min:0'],
             'latest_annual_turnover' => ['required', 'integer', 'min:0'],
             'date_established' => ['required', 'date'],
+            'trade_license_calendar_type' => ['required', 'string', 'in:gregorian,ethiopian'],
+            'trade_license_date_original' => ['nullable', 'string'],
             'trade_license_renewed_date' => ['required', 'date'],
             'primary_contact_name' => ['required', 'string', 'max:255'],
             'primary_phone' => ['required', 'string', 'max:50'],
@@ -50,7 +53,7 @@ class SupplierUpdateRequest extends FormRequest
             'bank_name' => ['nullable', 'string', 'max:255'],
             'branch_name' => ['nullable', 'string', 'max:255'],
             'account_number' => ['nullable', 'string', 'max:100'],
-            'account_holder_name' => ['nullable', 'string', 'max:255'],
+            'account_holder_name' => ['nullable', 'string', 'max:100'],
             'number_of_employees' => ['nullable', 'integer', 'min:0'],
             'technical_personnel' => ['nullable', 'integer', 'min:0'],
             'non_technical_personnel' => ['nullable', 'integer', 'min:0'],
@@ -86,6 +89,74 @@ class SupplierUpdateRequest extends FormRequest
             'specialization.required' => 'Specialization is required',
             'tax_clearance_from.required' => 'Tax Clearance From is required',
             'tax_clearance_to.required' => 'Tax Clearance To is required',
+            'trade_license_renewed_date.required' => 'Trade License Renewed Date is required',
+            'trade_license_calendar_type.required' => 'Calendar type is required',
+            'trade_license_calendar_type.in' => 'Calendar type must be either Gregorian or Ethiopian',
         ];
+    }
+
+    /**
+     * Prepare data for validation: convert Ethiopian date to Gregorian for storage.
+     */
+    protected function prepareForValidation(): void
+    {
+        $calendarType = $this->input('trade_license_calendar_type');
+        $dateOriginal = $this->input('trade_license_date_original');
+
+        if ($calendarType === 'ethiopian' && $dateOriginal) {
+            $parts = explode('-', $dateOriginal);
+            if (count($parts) === 3) {
+                $gregorian = EthiopianCalendar::ethiopianToGregorian(
+                    (int) $parts[0],
+                    (int) $parts[1],
+                    (int) $parts[2]
+                );
+                $this->merge(['trade_license_renewed_date' => $gregorian]);
+            }
+        }
+    }
+
+    /**
+     * Add custom validation for Ethiopian calendar dates.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $calendarType = $this->input('trade_license_calendar_type');
+            $dateOriginal = $this->input('trade_license_date_original');
+
+            if ($calendarType === 'ethiopian' && $dateOriginal) {
+                $parts = explode('-', $dateOriginal);
+                if (count($parts) !== 3) {
+                    $validator->errors()->add('trade_license_date_original', 'Invalid Ethiopian date format.');
+                    return;
+                }
+
+                $validation = EthiopianCalendar::validate(
+                    (int) $parts[0],
+                    (int) $parts[1],
+                    (int) $parts[2]
+                );
+
+                if (! $validation['valid']) {
+                    $validator->errors()->add('trade_license_date_original', $validation['error'] ?? 'Invalid Ethiopian date.');
+                }
+            }
+
+            // Validate that the Gregorian date matches when converting from Ethiopian
+            if ($calendarType === 'ethiopian' && $dateOriginal && $this->input('trade_license_renewed_date')) {
+                $parts = explode('-', $dateOriginal);
+                if (count($parts) === 3) {
+                    $expectedGregorian = EthiopianCalendar::ethiopianToGregorian(
+                        (int) $parts[0],
+                        (int) $parts[1],
+                        (int) $parts[2]
+                    );
+                    if ($expectedGregorian !== $this->input('trade_license_renewed_date')) {
+                        $validator->errors()->add('trade_license_renewed_date', 'Gregorian date does not match the Ethiopian calendar conversion.');
+                    }
+                }
+            }
+        });
     }
 }

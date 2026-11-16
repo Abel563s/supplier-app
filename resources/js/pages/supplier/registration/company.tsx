@@ -3,6 +3,7 @@ import SupplierLayout from '@/layouts/supplier/supplier-layout';
 import FormSection from '@/components/supplier/form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/toast';
 
 interface CompanyForm {
     legal_name: string;
@@ -22,6 +23,23 @@ export default function CompanyRegistration() {
         business_type: '',
         year_established: '',
     });
+
+    const { toast } = useToast();
+
+    const saveDraft = (e: React.FormEvent) => {
+        e.preventDefault();
+        fetch('/supplier/registration/company', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,6 +61,8 @@ export default function CompanyRegistration() {
                     isSubmitting={processing}
                     showSaveDraft={true}
                     lastSaved="Today at 9:42 AM"
+                    onSaveDraft={saveDraft}
+                    isSavingDraft={processing}
                 >
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div className="md:col-span-2">

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             SupplierSeeder::class,
             SupplierRequestMatchingDemoSeeder::class,
             SupplierTaxClearanceSeeder::class,
+            SupplierTradeLicenseSeeder::class,
             ProcurementRequestSeeder::class,
         ]);
     }

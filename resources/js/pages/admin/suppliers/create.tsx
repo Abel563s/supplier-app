@@ -5,6 +5,7 @@ import { ArrowLeft, Building2, CreditCard, FileCheck2, Info, MapPin, Receipt, Sh
 import AdminLayout from '@/layouts/admin/admin-layout';
 import FormSectionCard from '@/components/admin/form-section-card';
 import RegistrationStepper from '@/components/supplier/registration-stepper';
+import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SearchableSelect from '@/components/ui/searchable-select';
 import { Separator } from '@/components/ui/separator';
+import { gregorianToEthiopian, formatEthiopianDate } from '@/lib/ethiopian-calendar';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import {
@@ -37,6 +39,8 @@ const otherCountryValue = 'other';
 const otherLegalFormValue = 'other';
 const totalStepCount = 7;
 
+const dateValue = (value: string | null): string => (value ? String(value).slice(0, 10) : '');
+
 interface RequiredField {
     key: string;
     label: string;
@@ -51,9 +55,13 @@ const requiredFieldsBySection: Record<string, RequiredField[]> = {
     ],
     registration: [
         { key: 'business_registration_no', label: 'Business Registration No.' },
-        { key: 'registered_capital', label: 'Registered Capital' },
-        { key: 'latest_annual_turnover', label: 'Latest Annual Turnover' },
         { key: 'trade_license_renewed_date', label: 'Trade License Renewed Date' },
+        { key: 'trade_license_calendar_type', label: 'Trade License Calendar Type' },
+    ],
+    company: [
+        { key: 'registered_capital', label: 'Registered Capital (ETB)' },
+        { key: 'latest_annual_turnover', label: 'Latest Annual Turnover (ETB)' },
+        { key: 'date_established', label: 'Date Established' },
     ],
     tax: [
         { key: 'tax_clearance_from', label: 'Tax Clearance From' },
@@ -106,6 +114,8 @@ const emptySupplier = {
     latest_annual_turnover: '',
     date_established: '',
     trade_license_renewed_date: '',
+    trade_license_calendar_type: '',
+    trade_license_date_original: '',
     primary_contact_name: '',
     primary_phone: '',
     alternate_phone: '',
@@ -142,6 +152,22 @@ export default function SupplierCreate({ completion, documentTypes }: SupplierCr
     const [isOtherLegalForm, setIsOtherLegalForm] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm(emptySupplier);
+    const { toast } = useToast();
+
+    const saveDraft: FormEventHandler = (e) => {
+        e.preventDefault();
+        fetch('/admin/suppliers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -216,6 +242,7 @@ export default function SupplierCreate({ completion, documentTypes }: SupplierCr
 
     const legalSection = sectionStatus('legal');
     const registrationSection = sectionStatus('registration');
+    const companySection = sectionStatus('company');
     const taxSection = sectionStatus('tax');
     const contactSection = sectionStatus('contact');
     const businessSection = sectionStatus('business');
@@ -393,6 +420,77 @@ export default function SupplierCreate({ completion, documentTypes }: SupplierCr
                                         <Input id="vat_registration_no" value={data.vat_registration_no} onChange={(e) => setData('vat_registration_no', e.target.value)} className="mt-1.5 h-11" />
                                     </div>
 
+                                    <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <Label htmlFor="trade_license_calendar_type" className="text-sm font-medium text-gray-700 form-required">Trade License Calendar Type</Label>
+                                            <Select
+                                                value={data.trade_license_calendar_type || 'gregorian'}
+                                                onValueChange={(value) => setData('trade_license_calendar_type', value as string)}
+                                                className="max-w-full"
+                                            >
+                                                <SelectTrigger id="trade_license_calendar_type" className="mt-1.5 h-11 max-w-full">
+                                                    <SelectValue placeholder="Select Calander Type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="gregorian">Gregorian Calendar (GC)</SelectItem>
+                                                    <SelectItem value="ethiopian">Ethiopian Calendar (EC)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError className="mt-2" message={errors.trade_license_calendar_type} />
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <Label htmlFor="trade_license_renewed_date" className="text-sm font-medium text-gray-700 form-required">Trade License Renewed Date</Label>
+                                            <Input
+                                                id="trade_license_renewed_date"
+                                                type="date"
+                                                value={dateValue(data.trade_license_renewed_date)}
+                                                onChange={(e) => {
+                                                    const date = e.target.value;
+                                                    setData('trade_license_renewed_date', date);
+
+                                                    if (data.trade_license_calendar_type === 'ethiopian' && date) {
+                                                        const ethiopian = gregorianToEthiopian(date);
+                                                        setData('trade_license_date_original', `${ethiopian.year}-${String(ethiopian.month).padStart(2, '0')}-${String(ethiopian.day).padStart(2, '0')}`);
+                                                    } else if (data.trade_license_calendar_type === 'gregorian') {
+                                                        setData('trade_license_date_original', date);
+                                                    }
+                                                }}
+                                                className="mt-1.5 h-11 max-w-full"
+                                            />
+                                            <InputError className="mt-2" message={errors.trade_license_renewed_date} />
+                                        </div>
+                                    </div>
+
+                                    {data.trade_license_calendar_type === 'ethiopian' && data.trade_license_renewed_date && (
+                                        <div className="md:col-span-2 pt-2 bg-[#F0FDFD] rounded-lg border border-[#00ADC5]/30 p-3">
+                                            <Label className="text-xs font-medium text-[#00ADC5] uppercase tracking-wider">Ethiopian Date Equivalent (EC)</Label>
+                                            <p className="mt-1 text-sm font-semibold text-[#00515F]">
+                                                {formatEthiopianDate(
+                                                    gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).year,
+                                                    gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).month,
+                                                    gregorianToEthiopian(dateValue(data.trade_license_renewed_date)).day
+                                                )}
+                                            </p>
+                                            <p className="mt-0.5 text-xs text-[#647783]">Original EC date stored: {data.trade_license_date_original || '—'}</p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3">
+                                        <Checkbox id="vat_registered" checked={data.vat_registered} onCheckedChange={(checked) => setData('vat_registered', !!checked)} />
+                                        <Label htmlFor="vat_registered" className="text-sm font-medium text-gray-700">VAT Registered</Label>
+                                    </div>
+                                </div>
+                            </FormSectionCard>
+
+                            <FormSectionCard
+                                title="Company Information"
+                                description="Company formation and financial establishment details."
+                                icon={<Building2 className="h-5 w-5" />}
+                                status={companySection.status}
+                                missingItems={companySection.missingItems}
+                            >
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <div>
                                         <Label htmlFor="registered_capital" className="text-sm font-medium text-gray-700 form-required">Registered Capital (ETB)</Label>
                                         <Input id="registered_capital" type="number" value={data.registered_capital} onChange={(e) => setData('registered_capital', e.target.value)} className="mt-1.5 h-11" />
@@ -409,17 +507,6 @@ export default function SupplierCreate({ completion, documentTypes }: SupplierCr
                                         <Label htmlFor="date_established" className="text-sm font-medium text-gray-700 form-required">Date Established</Label>
                                         <Input id="date_established" type="date" value={data.date_established} onChange={(e) => setData('date_established', e.target.value)} className="mt-1.5 h-11" />
                                         <InputError className="mt-2" message={errors.date_established} />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="trade_license_renewed_date" className="text-sm font-medium text-gray-700 form-required">Trade License Renewed Date</Label>
-                                        <Input id="trade_license_renewed_date" type="date" value={data.trade_license_renewed_date} onChange={(e) => setData('trade_license_renewed_date', e.target.value)} className="mt-1.5 h-11" />
-                                        <InputError className="mt-2" message={errors.trade_license_renewed_date} />
-                                    </div>
-
-                                    <div className="flex items-center gap-3">
-                                        <Checkbox id="vat_registered" checked={data.vat_registered} onCheckedChange={(checked) => setData('vat_registered', !!checked)} />
-                                        <Label htmlFor="vat_registered" className="text-sm font-medium text-gray-700">VAT Registered</Label>
                                     </div>
                                 </div>
                             </FormSectionCard>
@@ -780,7 +867,16 @@ export default function SupplierCreate({ completion, documentTypes }: SupplierCr
                         </Button>
                     </div>
 
-                    <div className="justify-self-center">
+                    <div className="justify-self-center flex flex-col gap-2 sm:flex-row sm:gap-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => { e.preventDefault(); saveDraft(e as unknown as React.FormEvent); }}
+                            disabled={processing}
+                            className="h-11 px-8 text-sm font-medium border-gray-300 hover:border-[#00515F] text-[#00515F]"
+                        >
+                            {processing ? 'Saving...' : 'Save as Draft'}
+                        </Button>
                         <Button type="submit" variant="default" className="h-11 px-8 text-sm font-medium" disabled={processing}>
                             <UserPlus className="mr-2 h-4 w-4" />
                             {processing ? 'Registering...' : 'Register supplier'}

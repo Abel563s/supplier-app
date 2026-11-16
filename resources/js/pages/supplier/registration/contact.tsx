@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { FormEventHandler } from 'react';
 import { ArrowLeft, User, MapPin } from 'lucide-react';
 
@@ -59,6 +60,23 @@ export default function Contact({ step, supplier }: ContactProps) {
         woreda: supplierText('woreda'),
     });
 
+    const { toast } = useToast();
+
+    const saveDraft: FormEventHandler = (e) => {
+        e.preventDefault();
+        fetch('/supplier/registration/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ ...data, save_draft: true }),
+        }).then(() => {
+            toast({ title: 'Draft saved', description: 'Your changes have been saved successfully.', variant: 'success' });
+        });
+    };
+
     const nextStep: FormEventHandler = (e) => {
         e.preventDefault();
         post('/supplier/registration/contact', {
@@ -100,6 +118,13 @@ export default function Contact({ step, supplier }: ContactProps) {
             <Head title="Contact & Location" />
 
             <form onSubmit={nextStep}>
+                <div className="mb-6 flex items-center justify-between border-t border-gray-200 pt-6">
+                    <Link href="/supplier/registration/legal-entity" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Link>
+                </div>
+
                 <div className="space-y-6">
                     <FormSectionCard
                         title="Primary Contact"
@@ -163,11 +188,18 @@ export default function Contact({ step, supplier }: ContactProps) {
                 </div>
 
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                    <Link href="/supplier/registration/legal-entity" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-teal">
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                    </Link>
-                    <Button onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => { e.preventDefault(); saveDraft(e as unknown as React.FormEvent); }}
+                        disabled={processing}
+                        className="h-11 px-8 text-sm font-medium border-gray-300 hover:border-[#00515F] text-[#00515F]"
+                    >
+                        {processing ? 'Saving...' : 'Save as Draft'}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); nextStep(e as unknown as React.FormEvent); }} disabled={processing || !isStepValid} className="bg-[#00515F] text-white hover:bg-[#00515F]/90 h-11 px-8 text-sm font-medium">
                         {processing ? 'Saving...' : 'Continue'}
                     </Button>
                 </div>
