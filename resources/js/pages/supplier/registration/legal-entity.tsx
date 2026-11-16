@@ -10,7 +10,7 @@ import InputError from '@/components/input-error';
 import { useForm } from '@inertiajs/react';
 import { useToast } from '@/components/ui/toast';
 import { FormEventHandler, useState } from 'react';
-import { Receipt } from 'lucide-react';
+import { ArrowLeft, Receipt } from 'lucide-react';
 import { countryOfRegistrationOptions, legalFormOptions } from '@/lib/registration-options';
 import { gregorianToEthiopian, formatEthiopianDate } from '@/lib/ethiopian-calendar';
 
