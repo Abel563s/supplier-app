@@ -65,7 +65,19 @@ export default function SupplierDashboard({ completion, supplierStatus, correcti
     const isSubmitted = supplierStatus === 'submitted' || supplierStatus === 'approved';
 
     const sections = completion.steps
-        .filter((step) => isSubmitted || ['partial', 'complete', 'needs-attention'].includes(step.status))
+        .filter((step, index) => {
+            if (isSubmitted) {
+                return true;
+            }
+
+            const priorSteps = completion.steps.slice(0, index);
+            const allPriorComplete = priorSteps.every((s) => s.status === 'complete');
+
+            return (
+                step.status === 'complete' ||
+                (step.status !== 'complete' && allPriorComplete)
+            );
+        })
         .map((step) => ({
             number: step.number,
             title: step.title,
